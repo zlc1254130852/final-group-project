@@ -1,0 +1,59 @@
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style>
+			.clearfix::after {
+				content: "";
+				display: table;
+				clear: both;
+			}
+		</style>
+		<script src="../static/jquery-3.7.1.min.js"></script>
+		<script src="../static/main.js"></script>
+	</head>
+	<body>
+		<!--insert a table-->
+		<table border="2" width="80%" height="100%" align="center">
+			<tr>
+				<td width="20%" align="center">
+					<br><br><br><br><br><br><br>
+					<font color="red" size="4"><b><div id="id">AIchat</div></b></font>
+					<br><br><br><br><br><br><br>
+					<a href="/translator">Translator</a>
+					<br><br><br><br><br><br><br>
+				</td>
+				<td align="center" valign="bottom">
+					<br><br>
+					<div id="parent" style=" width:480px; border:1px solid #000;
+					border-radius: 10px;
+					height:480px; overflow-y: auto"></div>
+<!--					<textarea name="" id="chatResponse" cols="63" rows="10"></textarea>-->
+					<br><br>
+					<input type="button"
+						   id="clearButton"
+						   value="clear"
+						   onclick="clearChat()">
+					<input type="hidden" id="system" value="You are an AI assistant.">
+					<textarea
+						   placeholder="Enter the question"
+						   cols="63" rows="3"
+						   id="myquestion"
+						   style="resize:none"
+						   onkeydown="if(!event.shiftKey && event.keyCode === 13 ) chat(0)"
+					></textarea>
+					<input type="button"
+						   id="sendButton"
+						   value="send"
+						   onclick="chat(0)">
+					<input type="button"
+						   hidden="hidden"
+						   id="stopButton"
+						   value="stop"
+						   onclick="abortStream(0)">
+					<br><br>
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>

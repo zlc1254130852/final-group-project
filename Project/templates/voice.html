@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../static/plugins/bootstrap_v3/css/bootstrap.min.css">
+		<script src="../static/plugins/bootstrap_v3/js/jquery-3.7.1.min.js"></script>
+		<script src="../static/plugins/bootstrap_v3/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.3/socket.io.min.js"></script>
+        <script src="../static/dist/index.umd.js"></script>
+        <script>
+        var iatWS = io.connect('http://127.0.0.1:5000');
+        const recorder = new RecorderManager("../static/dist");
+        var content=""
+        var chatFrame;
+        window.onload = function () {
+            chatFrame=document.getElementById('parent')
+        }
+
+        iatWS.on('reply', function(res) {
+            if (res.end==0)
+                chatFrame.value=content+res.result.trim()
+            else{
+                content+=res.result.slice(1).trim()+"\n"
+                chatFrame.value=content
+            }
+
+            setTimeout(function(){
+				chatFrame.scrollTop = chatFrame.scrollHeight;
+			},0);
+        });
+
+        recorder.onFrameRecorded = ({ isLastFrame, frameBuffer }) => {
+
+              iatWS.emit('update',new Int8Array(frameBuffer))
+              if (isLastFrame) {
+
+
+              }
+
+          };
+
+        function play(){
+            document.getElementById('playButton').disabled=true
+            document.getElementById('playButton').hidden=true
+
+            document.getElementById('stopButton').hidden=false
+            document.getElementById('stopButton').disabled=false
+
+            iatWS.emit('play',{})
+
+            recorder.start({
+                sampleRate: 16000,
+                frameSize: 1280,
+            });
+
+        }
+        function stop(){
+
+            recorder.stop();
+            document.getElementById('stopButton').disabled=true
+            document.getElementById('stopButton').hidden=true
+
+            document.getElementById('playButton').hidden=false
+            document.getElementById('playButton').disabled=false
+
+            iatWS.emit('stop',{})
+        }
+
+    </script>
+</head>
+<body>
+<center>
+    <br><br><br><br>
+    <textarea id="parent" style=" width:480px; border:1px solid #000;
+					border-radius: 10px;
+					height:480px; overflow-y: auto"></textarea>
+    <br>
+    <button id="playButton" type="button" onclick="play()" class="btn btn-default">
+        <span class="glyphicon glyphicon-play" aria-hidden="true"></span>
+    </button>
+    <button id="stopButton" hidden="true" disabled="true" type="button" onclick="stop()" class="btn btn-default">
+        <span class="glyphicon glyphicon-pause" aria-hidden="true"></span>
+    </button>
+</center>
+</body>
+</html>

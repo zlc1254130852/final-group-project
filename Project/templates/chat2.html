@@ -1,0 +1,98 @@
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style>
+			.clearfix::after {
+				content: "";
+				display: table;
+				clear: both;
+			}
+		</style>
+		<script src="../static/jquery-3.7.1.min.js"></script>
+<!--		<script src="../static/main.js"></script>-->
+		<script>
+			content=""
+			function chat2(){
+				tmp_question=$("#myquestion").val()
+				if (tmp_question.trim()=="")
+					return
+				document.getElementById('myquestion').value="";
+				content+="user: \n"+tmp_question+"\n\n"
+				document.getElementById('parent').value=content
+
+				fetch('https://api.dify.ai/v1/chat-messages', {
+					method: "POST",
+					headers: {
+						"Authorization": "Bearer app-kVDTp2izrnQ4q897WQAbWRMX",
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+    					inputs: {},
+    					query: tmp_question,
+    					response_mode: "blocking",
+    					conversation_id: "",
+    					user: "abc-123"
+					}),
+				}).then(response => response.json())
+
+				  .then(data => {
+
+<!--					console.log(data.answer);-->
+					content+="assistant: \n"+data.answer+"\n\n"
+					document.getElementById('parent').value=content
+				  })
+
+				  .catch(error => {
+
+					console.error(error);
+
+				  });
+			}
+		</script>
+	</head>
+	<body>
+		<!--insert a table-->
+		<table border="2" width="80%" height="100%" align="center">
+			<tr>
+				<td width="20%" align="center">
+					<br><br><br><br><br><br><br>
+					<font color="red" size="4"><b><div id="id">AIchat</div></b></font>
+					<br><br><br><br><br><br><br>
+					<a href="/translator">Translator</a>
+					<br><br><br><br><br><br><br>
+				</td>
+				<td align="center" valign="bottom">
+					<br><br>
+					<textarea id="parent" style=" width:480px; border:1px solid #000;
+					border-radius: 10px;
+					height:480px; overflow-y: auto"></textarea>
+<!--					<textarea name="" id="chatResponse" cols="63" rows="10"></textarea>-->
+					<br><br>
+					<input type="button"
+						   id="clearButton"
+						   value="clear"
+						   onclick="">
+					<input type="hidden" id="system" value="You are an AI assistant.">
+					<textarea
+						   placeholder="Enter the question"
+						   cols="63" rows="3"
+						   id="myquestion"
+						   style="resize:none"
+						   onkeydown="if(!event.shiftKey && event.keyCode === 13 ) chat2()"
+					></textarea>
+					<input type="button"
+						   id="sendButton"
+						   value="send"
+						   onclick="chat2()">
+					<input type="button"
+						   hidden="hidden"
+						   id="stopButton"
+						   value="stop"
+						   onclick="">
+					<br><br>
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>
