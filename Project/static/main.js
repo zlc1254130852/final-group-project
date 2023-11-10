@@ -76,8 +76,8 @@ var system=""
 				if (tmp_question.trim()=="")
 					return
 
-				document.getElementById('sendButton').hidden=true
-				document.getElementById('stopButton').hidden=false
+				document.getElementById('sendButtonArea').hidden=true
+				document.getElementById('stopButtonArea').hidden=false
 
 				document.getElementById('stopButton').disabled=false
 				stop=0
@@ -141,8 +141,8 @@ var system=""
 										document.getElementById('sendButton').disabled=false
 										document.getElementById('clearButton').disabled=false
 										document.getElementById('stopButton').disabled=true
-										document.getElementById('sendButton').hidden=false
-										document.getElementById('stopButton').hidden=true
+										document.getElementById('sendButtonArea').hidden=false
+										document.getElementById('stopButtonArea').hidden=true
 									} else if(obj1!=null){
 										content += obj1
 										show.innerHTML = content;
@@ -184,8 +184,8 @@ var system=""
 				document.getElementById('sendButton').disabled=false
 				document.getElementById('clearButton').disabled=false
 				document.getElementById('stopButton').disabled=true
-				document.getElementById('sendButton').hidden=false
-				document.getElementById('stopButton').hidden=true
+				document.getElementById('sendButtonArea').hidden=false
+				document.getElementById('stopButtonArea').hidden=true
 			}
 			function clearChat(){
 				localStorage.removeItem(id.innerHTML)
