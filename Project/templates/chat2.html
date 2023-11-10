@@ -9,9 +9,18 @@
 				clear: both;
 			}
 		</style>
+		<link rel="stylesheet" href="../static/plugins/bootstrap_v3/css/bootstrap.min.css">
+		<script src="../static/plugins/bootstrap_v3/js/jquery-3.7.1.min.js"></script>
+		<script src="../static/plugins/bootstrap_v3/js/bootstrap.min.js"></script>
 		<script src="../static/jquery-3.7.1.min.js"></script>
 <!--		<script src="../static/main.js"></script>-->
 		<script>
+			window.onload = function () {
+				document.getElementById('myquestion').style.marginBottom="-22px"
+				document.getElementById('sendButton').style.marginBottom="20px"
+<!--				document.getElementById('stopButton').style.marginBottom="20px"-->
+				document.getElementById('clearButton').style.marginBottom="20px"
+			}
 			content=""
 			function chat2(){
 				tmp_question=$("#myquestion").val()
@@ -24,7 +33,7 @@
 				fetch('https://api.dify.ai/v1/chat-messages', {
 					method: "POST",
 					headers: {
-						"Authorization": "",
+						"Authorization": "Bearer app-2twk9WIzAJuSv4NYHMODaH3k",
 						"Content-Type": "application/json",
 					},
 					body: JSON.stringify({
@@ -37,8 +46,6 @@
 				}).then(response => response.json())
 
 				  .then(data => {
-
-<!--					console.log(data.answer);-->
 					content+="assistant: \n"+data.answer+"\n\n"
 					document.getElementById('parent').value=content
 				  })
@@ -53,46 +60,45 @@
 	</head>
 	<body>
 		<!--insert a table-->
-		<table border="2" width="80%" height="100%" align="center">
-			<tr>
-				<td width="20%" align="center">
-					<br><br><br><br><br><br><br>
-					<font color="red" size="4"><b><div id="id">AIchat</div></b></font>
-					<br><br><br><br><br><br><br>
-					<a href="/translator">Translator</a>
-					<br><br><br><br><br><br><br>
-				</td>
-				<td align="center" valign="bottom">
-					<br><br>
-					<textarea id="parent" style=" width:480px; border:1px solid #000;
-					border-radius: 10px;
-					height:480px; overflow-y: auto"></textarea>
+		<center>
+			<br><br><br><br>
+			<textarea id="parent" style=" width:480px; border:1px solid #000;
+			border-radius: 10px;
+			height:480px; overflow-y: auto"></textarea>
 <!--					<textarea name="" id="chatResponse" cols="63" rows="10"></textarea>-->
-					<br><br>
-					<input type="button"
-						   id="clearButton"
-						   value="clear"
-						   onclick="">
-					<input type="hidden" id="system" value="You are an AI assistant.">
-					<textarea
-						   placeholder="Enter the question"
-						   cols="63" rows="3"
-						   id="myquestion"
-						   style="resize:none"
-						   onkeydown="if(!event.shiftKey && event.keyCode === 13 ) chat2()"
-					></textarea>
-					<input type="button"
-						   id="sendButton"
-						   value="send"
-						   onclick="chat2()">
-					<input type="button"
-						   hidden="hidden"
-						   id="stopButton"
-						   value="stop"
-						   onclick="">
-					<br><br>
-				</td>
-			</tr>
-		</table>
+			<br><br>
+<!--					<input type="button"-->
+<!--						   id="clearButton"-->
+<!--						   value="clear"-->
+<!--						   onclick="">-->
+
+			<button id="clearButton" type="button" onclick="" class="btn btn-default" style="display: inline-block;">
+						<span class="glyphicon glyphicon-erase" aria-hidden="true"></span>
+			</button>
+
+			<input type="hidden" id="system" value="You are an AI assistant.">
+			<textarea
+				   placeholder="Enter the question"
+				   cols="63" rows="3"
+				   id="myquestion"
+				   style="resize:none"
+				   onkeydown="if(!event.shiftKey && event.keyCode === 13 ) chat2()"
+			></textarea>
+<!--					<input type="button"-->
+<!--						   id="sendButton"-->
+<!--						   value="send"-->
+<!--						   onclick="chat2()">-->
+			<div style="display: inline-block;">
+				<button id="sendButton" type="button" onclick="chat2()" class="btn btn-default">
+							<span class="glyphicon glyphicon-send" aria-hidden="true"></span>
+				</button>
+			</div>
+<!--			<input type="button"-->
+<!--				   hidden="hidden"-->
+<!--				   id="stopButton"-->
+<!--				   value="stop"-->
+<!--				   onclick="">-->
+			<br><br>
+		</center>
 	</body>
 </html>
