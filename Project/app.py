@@ -1,124 +1,136 @@
 # -*- encoding:utf-8 -*-
 # main.py
-from flask import Flask, redirect, render_template
+from flask import render_template
 from flask import request, Response
-# from flask import json
-import openai
 import hashlib
 import hmac
 import base64
 from socket import *
 import json, time, threading
 from websocket import create_connection
-import websocket
 from urllib.parse import quote
 import logging
-# import importlib,sys
+from assess import send_assess
+from transform import pcm2wav
+from voice import Client, app_id, api_key
+from setting import app, socketio
+from openai import OpenAI
+from pydub import AudioSegment
+import scipy.io.wavfile as wav
 import requests
-import random
-from hashlib import md5
-from flask_socketio import SocketIO
 
-openai.api_key = ""
-
-app_id = ""
-api_key = ""
-# Set your own appid/appkey.
-appid = ''
-appkey = ''
-
-# For list of language codes, please refer to `https://api.fanyi.baidu.com/doc/21`
-from_lang = 'en'
-to_lang =  'zh'
-
-endpoint = 'http://api.fanyi.baidu.com'
-path = '/api/trans/vip/translate'
-url = endpoint + path
-
-# Generate salt and sign
-def make_md5(s, encoding='utf-8'):
-    return md5(s.encode(encoding)).hexdigest()
-
-class Client():
-    def __init__(self):
-        self.end_tag = "{\"end\": true}"
-
-    def send(self, data):
-        self.ws.send(data)
-        time.sleep(0.04)
-
-    def stop_send(self):
-        self.ws.send(bytes(self.end_tag.encode('utf-8')))
-        print("send end tag success")
-
-    def recv(self):
-        try:
-            while self.ws.connected:
-                result = str(self.ws.recv())
-                if len(result) == 0:
-                    print("receive result end")
-                    self.ws.close()
-                    print("connection closed")
-                    break
-                result_dict = json.loads(result)
-
-                if result_dict["action"] == "started":
-                    print("handshake success, result: " + result)
-                    socketio.emit('reply', {"result": " \n----------------\nconnected\n----------------\n", "end": 1})
-
-                if result_dict["action"] == "result":
-                    result_1 = result_dict
-                    result_2 = json.loads(result_1["data"])
-                    result_3 = ""
-                    end_tag = ""
-                    end=len(result_2["cn"]["st"]["rt"][0]["ws"])
-                    result_4=result_2["cn"]["st"]["rt"][0]["ws"]
-                    for i in range(0,end):
-                        result_3 += result_4[i]["cw"][0]["w"]
-                    end_tag = result_2["cn"]["st"]["ed"]
-
-                    if end_tag == "0":
-                        socketio.emit('reply', {"result": result_3, "end": 0})
-
-                    else:
-                        socketio.emit('reply',{"result":result_3,"end":1})
-
-                        if result_3[0] in [',','.','?','!']:
-                            if len(result_3)>1:
-                                result_3=result_3[1:len(result_3)]
-                            else:
-                                result_3=" "
-                        salt = random.randint(32768, 65536)
-                        # Build request
-                        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-                        sign = make_md5(appid + result_3 + str(salt) + appkey)
-                        payload = {'appid': appid, 'q': result_3, 'from': from_lang, 'to': to_lang, 'salt': salt, 'sign': sign}
-                        r = requests.post(url, params=payload, headers=headers)
-                        result = r.json()
-                        if "trans_result" in result:
-                            socketio.emit('reply', {"result": " "+result["trans_result"][0]["dst"],"end":1})
-
-                if result_dict["action"] == "error":
-                    print("rtasr error: " + result)
-                    self.ws.close()
-                    return
-
-        except websocket.WebSocketConnectionClosedException:
-            print("receive result end")
-
-    def close(self):
-        self.ws.close()
-        print("connection closed")
+OPENAI_API_KEY = ""
 
 print("Server ready")
-
-app = Flask(__name__)
-socketio = SocketIO(app)
 
 ctrler=[1,1]
 
 logging.basicConfig()
 client=Client()
+
+openai_client = OpenAI(api_key=OPENAI_API_KEY)
+
+file = []
+text = []
+
+file3 = []
+
+@app.route('/play4', methods=['POST'])
+def play4():
+    print(request.json["msg"])
+    speech_file_path = "static/en/example4.mp3"
+    response = openai_client.audio.speech.create(
+        model="tts-1",
+        voice="alloy",
+        input=request.json["msg"]
+    )
+    print("response done")
+    response.stream_to_file(speech_file_path)
+    sound = AudioSegment.from_mp3(speech_file_path)
+    sound.export("static/en/example4.wav", format="wav")
+    rt, wavsignal = wav.read('static/en/example4.wav')
+
+    bwav=bytes(wavsignal)
+
+    def generate():
+        # time.sleep(0.04)
+        for i in range(len(bwav)//1024+1):
+            if (i+1)*1024>len(bwav):
+                tmp=[]
+                for j in range(1024-len(bwav)%1024):
+                    tmp.append(0)
+
+                yield bwav[i*1024:len(bwav)]+bytes(tmp)
+            else:
+                yield bwav[i*1024:(i+1)*1024]
+
+    headers = {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'X-Accel-Buffering': 'no'
+    }
+
+    return Response(generate(), mimetype="text/event-stream", headers=headers)
+
+@socketio.on('play3')
+def play3(req):
+    file3.append(open("static/en/example3.pcm", "wb"))
+
+@socketio.on('update3')
+def update3(data):
+    if not file3:
+        return
+
+    if type(data)==dict:
+        # time.sleep(6)
+        file_popped=file3.pop()
+        file_popped.close()
+
+        file_path = r"static/en/example3.pcm"
+        to_path = r"static/en/example3.wav"
+        pcm2wav(file_path, to_path)
+
+        audio_file = open("static/en/example3.wav", "rb")
+        transcript = openai_client.audio.transcriptions.create(
+            model="whisper-1",
+            file=audio_file,
+            response_format="text"
+        )
+
+        socketio.emit('reply3', {"result": " "+transcript, "end": 1})
+
+    else:
+        file3[-1].write(data)
+
+@socketio.on('play2')
+def play2(req):
+    file.append(open("static/en/example.pcm", "wb"))
+    text.append(req['text'])
+
+@socketio.on('update2')
+def update2(data):
+    if not file:
+        return
+
+    if type(data)==dict:
+        # time.sleep(6)
+        file_popped=file.pop()
+        file_popped.close()
+
+        file_path = r"static/en/example.pcm"
+        to_path = r"static/en/example.wav"
+        pcm2wav(file_path, to_path)
+        recv_message=send_assess(text[-1])
+        text.pop()
+        # print(recv_message)
+        socketio.emit('reply2', {"result": " "+recv_message, "end": 1})
+
+    else:
+        file[-1].write(data)
+
+@app.route('/assess', methods=['GET'])
+def assess():
+    return render_template("assess.html")
 
 @socketio.on('play')
 def play(req):
@@ -135,6 +147,7 @@ def play(req):
     signa = base64.b64encode(signa)
     signa = str(signa, 'utf-8')
     client.end_tag = "{\"end\": true}"
+    client.to_lang = req['to_lang']
 
     client.ws = create_connection(base_url + "?appid=" + app_id + "&ts=" + ts + "&signa=" + quote(signa)  + "&lang=en")
     client.ws.settimeout(60)
@@ -178,31 +191,55 @@ def answer():
     ctrler[opt]=0
     history=eval(request.json["history"])
 
-    # get_data = request.args.to_dict()
-    # msg1 = get_data.get('question')
-    response = openai.ChatCompletion.create(
+    response = openai_client.chat.completions.create(
         model='gpt-3.5-turbo',
         messages=[{"role":"system","content":request.json["system"]}]+history[:-1]+[{"role":"user","content":request.json["question"]}],
         stream=True
     )
 
-    # return response["choices"][0]["message"]["content"]
     def generate():
         for trunk in response:
-            # print(trunk)
             if ctrler[opt]==0:
-                # print("running")
-                yield json.dumps(trunk) + '\n'
+                yield json.dumps({'delta':trunk.choices[0].delta.content,'finish_reason':trunk.choices[0].finish_reason}) + "\n"
             else:
                 return
 
     headers = {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
-        'X-Accel-Buffering': 'no',
+        'X-Accel-Buffering': 'no'
     }
 
     return Response(generate(), mimetype="text/event-stream", headers=headers)
+
+@app.route('/chat2', methods=['POST'])
+def answer2():
+    # print(request.json["query"])
+    headers = {'Authorization': '', 'Content-Type': 'application/json'}
+    payload = {'inputs': {}, 'query': request.json["query"], 'response_mode': 'streaming', 'conversation_id': '', 'user': 'abc-123'}
+
+    response = requests.post("https://api.dify.ai/v1/chat-messages", data=json.dumps(payload), headers=headers)
+
+    def generate():
+        tmp=""
+        for trunk in response:
+            tmp += trunk.decode('utf-8').split("\n\n")[0]
+            print(trunk.decode('utf-8'))
+            print("---------------------")
+            if len(trunk.decode('utf-8').split("\n\n"))==2:
+                tmp2=tmp[:]
+                tmp=trunk.decode('utf-8').split("\n\n")[1]
+                time.sleep(0.1)
+                yield tmp2
+
+    headers = {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'X-Accel-Buffering': 'no'
+    }
+
+    return Response(generate(), mimetype="text/event-stream", headers=headers)
+    # return r.json()
 
 if __name__ == '__main__':
 
