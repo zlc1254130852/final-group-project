@@ -11,7 +11,7 @@
         <script src="../static/dist/index.umd.js"></script>
 		<script src="../static/FileSaver.js"></script>
         <script>
-        var iatWS = io.connect('');
+        var iatWS = io.connect('http://127.0.0.1:5000');
         const recorder = new RecorderManager("../static/dist");
         var content=""
         var chatFrame;
