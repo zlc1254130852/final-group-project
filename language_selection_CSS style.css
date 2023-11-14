@@ -1,0 +1,38 @@
+/* Reset default styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f4f4f4;
+}
+
+.language-selector {
+  width: 200px;
+  margin: 0 auto;
+}
+
+select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  appearance: none; /* hides default dropdown arrow on some browsers */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5H7z"/></svg>'); /* custom arrow */
+  background-repeat: no-repeat;
+  background-position: 95% 50%;
+  background-size: 16px;
+  cursor: pointer;
+}
+
+select:focus {
+  outline: none;
+  border-color: #0088cc;
+}
