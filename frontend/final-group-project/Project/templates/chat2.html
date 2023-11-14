@@ -1,0 +1,104 @@
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style>
+			.clearfix::after {
+				content: "";
+				display: table;
+				clear: both;
+			}
+		</style>
+		<link rel="stylesheet" href="../static/plugins/bootstrap_v3/css/bootstrap.min.css">
+		<script src="../static/plugins/bootstrap_v3/js/jquery-3.7.1.min.js"></script>
+		<script src="../static/plugins/bootstrap_v3/js/bootstrap.min.js"></script>
+		<script src="../static/jquery-3.7.1.min.js"></script>
+<!--		<script src="../static/main.js"></script>-->
+		<script>
+			window.onload = function () {
+				document.getElementById('myquestion').style.marginBottom="-22px"
+				document.getElementById('sendButton').style.marginBottom="20px"
+<!--				document.getElementById('stopButton').style.marginBottom="20px"-->
+				document.getElementById('clearButton').style.marginBottom="20px"
+			}
+			content=""
+			function chat2(){
+				tmp_question=$("#myquestion").val()
+				if (tmp_question.trim()=="")
+					return
+				document.getElementById('myquestion').value="";
+				content+="user: \n"+tmp_question+"\n\n"
+				document.getElementById('parent').value=content
+
+				fetch('https://api.dify.ai/v1/chat-messages', {
+					method: "POST",
+					headers: {
+						"Authorization": "",
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+    					inputs: {},
+    					query: tmp_question,
+    					response_mode: "blocking",
+    					conversation_id: "",
+    					user: "abc-123"
+					}),
+				}).then(response => response.json())
+
+				  .then(data => {
+					content+="assistant: \n"+data.answer+"\n\n"
+					document.getElementById('parent').value=content
+				  })
+
+				  .catch(error => {
+
+					console.error(error);
+
+				  });
+			}
+		</script>
+	</head>
+	<body>
+		<!--insert a table-->
+		<center>
+			<br><br><br><br>
+			<textarea id="parent" style=" width:480px; border:1px solid #000;
+			border-radius: 10px;
+			height:480px; overflow-y: auto"></textarea>
+<!--					<textarea name="" id="chatResponse" cols="63" rows="10"></textarea>-->
+			<br><br>
+<!--					<input type="button"-->
+<!--						   id="clearButton"-->
+<!--						   value="clear"-->
+<!--						   onclick="">-->
+
+			<button id="clearButton" type="button" onclick="" class="btn btn-default" style="display: inline-block;">
+						<span class="glyphicon glyphicon-erase" aria-hidden="true"></span>
+			</button>
+
+			<input type="hidden" id="system" value="You are an AI assistant.">
+			<textarea
+				   placeholder="Enter the question"
+				   cols="63" rows="3"
+				   id="myquestion"
+				   style="resize:none"
+				   onkeydown="if(!event.shiftKey && event.keyCode === 13 ) chat2()"
+			></textarea>
+<!--					<input type="button"-->
+<!--						   id="sendButton"-->
+<!--						   value="send"-->
+<!--						   onclick="chat2()">-->
+			<div style="display: inline-block;">
+				<button id="sendButton" type="button" onclick="chat2()" class="btn btn-default">
+							<span class="glyphicon glyphicon-send" aria-hidden="true"></span>
+				</button>
+			</div>
+<!--			<input type="button"-->
+<!--				   hidden="hidden"-->
+<!--				   id="stopButton"-->
+<!--				   value="stop"-->
+<!--				   onclick="">-->
+			<br><br>
+		</center>
+	</body>
+</html>

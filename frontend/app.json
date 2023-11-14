@@ -1,0 +1,13 @@
+{
+  "expo": {
+    "scheme": "acme",
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "name": "English_language_learing_AI_assisted_app",
+    "slug": "English_language_learing_AI_assisted_app"
+  }
+}
