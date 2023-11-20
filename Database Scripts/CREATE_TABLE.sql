@@ -1,35 +1,5 @@
-CREATE TABLE UserAccount (
-	Id int AUTO_INCREMENT,
-	Username VARCHAR(30) NOT NULL,
-	Password VARCHAR(30) NOT NULL,
-	PRIMARY KEY (Id),
-	UNIQUE(Username)
-);
-
-CREATE TABLE UserProfile (
-	Id int,
-	FirstName VARCHAR(30) NOT NULL,
-	LastName VARCHAR(30) NOT NULL,
-	Email VARCHAR(255),
-	DateCreated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	PRIMARY KEY (Id),
-	FOREIGN KEY (Id) REFERENCES UserAccount(Id) ON DELETE CASCADE,
-	UNIQUE(Email)
-);
-
-CREATE TABLE ChatHistory (
-	Id int AUTO_INCREMENT,
-    UserId int NOT NULL,
-    ChatDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (Id),
-    FOREIGN KEY (UserId) REFERENCES UserAccount(Id) ON DELETE CASCADE
-);
-
-CREATE TABLE ChatHistoryMessage (
-	Id int AUTO_INCREMENT,
-    ChatHistoryId int,
-    SenderId int,
-    Message TEXT,
-    PRIMARY KEY (Id),
-    FOREIGN KEY (ChatHistoryId) REFERENCES ChatHistory(Id) ON DELETE CASCADE
+CREATE TABLE Test (
+	TestID INT,
+    TestType VARCHAR(100),
+    TestName VARCHAR(100)
 );

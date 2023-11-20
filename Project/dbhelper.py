@@ -99,7 +99,51 @@ class DatabaseHelper:
                 self.connection.commit()
             except mysql.connector.Error as error:
                 print(f"Failed to insert chat history message: {error}")
+
+    def create_test(self, test_type, test_name):
+        try:
+            query = "INSERT INTO Test (Type, Name) VALUES (%s, %s)"
+            self.cursor.execute(query, [test_type, test_name])
+            self.connection.commit()
+        except mysql.connector.Error as error:
+            print(f"Failed to insert test: {error}")
+
+    def create_user_answers(self, test_id, user_id, answers):
+        '''
+            answers is a list of tuples in the form (question_id, answer)
+        '''
+        for answer in answers:
+            try:
+                query = "INSERT INTO TestUserAnswer (TestId, UserId, QuestionId, Answer) VALUES (%s, %s, %s, %s)"
+                self.cursor.execute(query, [test_id, user_id, answer[0], answer[1]])
+                self.connection.commit()
+            except mysql.connector.Error as error:
+                print(f"Failed to insert user test answers: {error}")
+
+    def create_correct_answers(self, test_id, answers):
+        '''
+            answers is a list of tuples in the form (question_id, answer)
+        '''
+        for answer in answers:
+            try:
+                query = "INSERT INTO TestCorrectAnswer (TestId, QuestionId, Answer) VALUES (%s, %s, %s)"
+                self.cursor.execute(query, [test_id, answer[0], answer[1]])
+                self.connection.commit()
+            except mysql.connector.Error as error:
+                print(f"Failed to insert correct test answers: {error}") 
+
+    def create_user_test_results(self, test_id, user_id, user_score, total_score):
+        '''
+            answers is a list of tuples in the form (question_id, answer)
+        '''
         
+        try:
+            query = "INSERT INTO UserTestResult (TestId, QuestionId, Answer) VALUES (%s, %s, %s, %s)"
+            self.cursor.execute(query, [test_id, user_id, user_score, total_score])
+            self.connection.commit()
+        except mysql.connector.Error as error:
+            print(f"Failed to insert correct test answers: {error}")              
+    
     
     ### GET ###
     def get_user_profile(self, id):
@@ -128,6 +172,39 @@ class DatabaseHelper:
              chat_history_messages.append((message[0], message[1]))
 
         return chat_history_messages
+    
+    def get_test_correct_answers(self, test_id):
+        answers = []
+
+        query = "SELECT QuestionId, Answer FROM TestCorrectAnswer WHERE TestId = %s"
+
+        self.cursor.execute(query, [test_id])
+        for answer in self.cursor:
+             answers.append((answer[0], answers[1]))
+
+        return answers
+    
+    def get_test_user_answers(self, test_id, user_id):
+        answers = []
+
+        query = "SELECT QuestionId, Answer FROM TestUserAnswer WHERE TestId = %s AND UserId = %s"
+
+        self.cursor.execute(query, [test_id, user_id])
+        for answer in self.cursor:
+             answers.append((answer[0], answers[1]))
+
+        return answers
+    
+    def get_user_test_resutls(self, test_id, user_id):
+        results = []
+
+        query = "SELECT UserScore, TotalScore FROM UserTestResult WHERE TestId = %s AND UserId = %s"
+
+        self.cursor.execute(query, [test_id, user_id])
+        for result in self.cursor:
+             results.append((result[0], result[1]))
+
+        return results
 
 
     ### UPDATE ###
