@@ -41,12 +41,14 @@ file3 = []
 def upload2():
     return render_template("upload2.html")
 
-@app.route('/file2/<to_lang>',methods=['POST'])
-def save_file2(to_lang):
+@app.route('/file2',methods=['POST'])
+def save_file2():
     data = request.files
 
     file = data['file']
-    print(data)
+
+    form=request.form
+    to_lang = form.get('to_lang')
 
     buffer_data = file.read()
     with open("static/"+file.filename, 'wb+') as f:
@@ -58,7 +60,7 @@ def save_file2(to_lang):
 
     for i in json.loads(result.decode('utf-8'))["data"]["fileList"][0]["labels"]:
         tmp = excel_find(i)
-        tmp2 = baidu_translate(tmp,to_lang)
+        tmp2 = baidu_translate(tmp, to_lang)
         result2 += tmp + " " + tmp2
 
         result2 +="\n"
