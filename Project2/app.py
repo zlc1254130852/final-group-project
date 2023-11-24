@@ -24,6 +24,7 @@ from excel_query import excel_find
 from baidu_translation import baidu_translate
 from stream_generation import generate_bwav,generate_AI_chat,generate_dify_speaking,generate_dify_writing
 from api_key import OPENAI_API_KEY, DIFY_API_KEY_SPEAKING, DIFY_API_KEY_WRITING
+
 print("Server ready")
 
 ctrler=[1,1]
