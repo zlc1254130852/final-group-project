@@ -42,7 +42,7 @@ CATEGORY = "read_sentence"
 recv_message=[""]
 
 class Ws_Param(object):
-    # 初始化
+
     def __init__(self, APPID, APIKey, APISecret, AudioFile, Text):
         self.APPID = APPID
         self.APIKey = APIKey
@@ -55,7 +55,7 @@ class Ws_Param(object):
         self.BusinessArgs = {"category": CATEGORY, "sub": SUB, "ent": ENT, "cmd": "ssb", "auf": "audio/L16;rate=16000",
                              "aue": "raw", "text": self.Text, "ttp_skip": True, "aus": 1}
 
-    # 生成url
+
     def create_url(self):
 
         url = 'ws://ise-api.xfyun.cn/v2/open-ise'
