@@ -15,6 +15,7 @@
     const recorder = new RecorderManager("../static/dist");
     var content=""
     var chatFrame;
+    var target_lang="zh"
 
     iatWS.on('reply3', function(res) {
         console.log(res)
@@ -48,14 +49,13 @@
         var formData = new FormData();
         var file = files[0];
         formData.append('file', file);
-        formData.append('id', 'id1');
-        formData.append('name', 'name1');
+
         content=""
         document.getElementById("parent").innerHTML=""
         files=""
         document.getElementById("file-uploader").value=""
         $.ajax({
-            url: '/file2',
+            url: '/file2/'+target_lang,
             type: 'POST',
             cache: false,
             data: formData,
@@ -73,30 +73,34 @@
             }
         });
     }
+    function lang_select(lang,lang_name){
+        	target_lang=lang
+        	document.getElementById('dropdownMenu1').innerHTML="Translate to "+lang_name
+        }
   </script>
 </head>
 <body>
 <center>
-    <br><br>
-<!--    <div class="dropdown">-->
-<!--		  <button style="box-shadow:1px 1px 1px 2px gray;" class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">-->
-<!--			Translate to-->
-<!--			<span class="caret"></span>-->
-<!--		  </button>-->
-<!--			  <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="overflow-y: auto;position:absolute;z-index:2;left: 50%;right: 50%;">-->
-<!--				  <li onclick="lang_select('ara','Arabic')"><a href="#">Arabic</a></li>-->
-<!--				  <li onclick="lang_select('zh','Chinese')"><a href="#">Chinese</a></li>-->
-<!--				  <li onclick="lang_select('en','English')"><a href="#">English</a></li>-->
-<!--				  <li onclick="lang_select('fra','French')"><a href="#">French</a></li>-->
-<!--				  <li onclick="lang_select('pt','Portuguese')"><a href="#">Portuguese</a></li>-->
-<!--				  <li onclick="lang_select('ru','Russian')"><a href="#">Russian</a></li>-->
-<!--				  <li onclick="lang_select('spa','Spanish')"><a href="#">Spanish</a></li>-->
-<!--&lt;!&ndash;					<li><a href="#">Another action</a></li>&ndash;&gt;-->
-<!--&lt;!&ndash;					<li><a href="#">Something else here</a></li>&ndash;&gt;-->
-<!--&lt;!&ndash;					<li role="separator" class="divider"></li>&ndash;&gt;-->
-<!--&lt;!&ndash;					<li><a href="#">Separated link</a></li>&ndash;&gt;-->
-<!--			  </ul>-->
-<!--		</div>-->
+    <br><br><div class="dropdown">
+		  <button style="box-shadow:1px 1px 1px 2px gray;" class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+			Translate to
+			<span class="caret"></span>
+		  </button>
+			  <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="overflow-y: auto;position:absolute;z-index:2;left: 50%;right: 50%;">
+				  <li onclick="lang_select('ara','Arabic')"><a href="#">Arabic</a></li>
+				  <li onclick="lang_select('zh','Chinese')"><a href="#">Chinese</a></li>
+				  <li onclick="lang_select('en','English')"><a href="#">English</a></li>
+				  <li onclick="lang_select('fra','French')"><a href="#">French</a></li>
+				  <li onclick="lang_select('pt','Portuguese')"><a href="#">Portuguese</a></li>
+				  <li onclick="lang_select('ru','Russian')"><a href="#">Russian</a></li>
+				  <li onclick="lang_select('spa','Spanish')"><a href="#">Spanish</a></li>
+<!--					<li><a href="#">Another action</a></li>-->
+<!--					<li><a href="#">Something else here</a></li>-->
+<!--					<li role="separator" class="divider"></li>-->
+<!--					<li><a href="#">Separated link</a></li>-->
+			  </ul>
+		</div>
+    <br>
     <div id="parent" style="text-align:left;white-space:pre-line;box-shadow:1px 1px 1px 2px gray;width:480px; border:1px solid #000;
 					border-radius: 10px;
 					height:480px; overflow-y: auto;resize:none"></div>
