@@ -117,7 +117,7 @@ def save_file():
 
     buffer_data = file.read()
     with open("static/en/"+file.filename, 'wb+') as f:
-        f.write(buffer_data)  # 二进制转为音频文件
+        f.write(buffer_data)
 
     form=1
     if file.filename[-4:]==".pcm":
