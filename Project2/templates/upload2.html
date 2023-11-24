@@ -49,13 +49,14 @@
         var formData = new FormData();
         var file = files[0];
         formData.append('file', file);
+        formData.append('to_lang', target_lang);
 
         content=""
         document.getElementById("parent").innerHTML=""
         files=""
         document.getElementById("file-uploader").value=""
         $.ajax({
-            url: '/file2/'+target_lang,
+            url: '/file2',
             type: 'POST',
             cache: false,
             data: formData,
