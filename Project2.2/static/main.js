@@ -184,7 +184,6 @@ var s2tFrame;
                         isLastData: 0,
                       });
 
-                      // 读取下一段数据
                       return reader.read().then(process);
                     });
 
@@ -225,9 +224,8 @@ var s2tFrame;
 
 				div1.setAttribute("onclick","msg_to_process("+counter.toString()+")")
 				div1.addEventListener("contextmenu", function(event) {
-                  event.preventDefault(); // 阻止浏览器默认的右键菜单弹出
-                  // 执行自定义的右键菜单逻辑
-//                  console.log("右键点击事件已触发");
+                  event.preventDefault(); 
+
 //                  alert(counter.toString());
                     var isbool = confirm('Are you sure you wanna delete this message?');
                     if(isbool == true){
