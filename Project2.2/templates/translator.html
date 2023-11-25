@@ -19,7 +19,7 @@
 		<script>
 			function lang_select(lang){
 <!--				alert(lang)-->
-				document.getElementById('system').value="translate the sentence into"+lang
+				document.getElementById('system').value="translate the sentence that the user sent into"+lang
 				document.getElementById('dropdownMenu1').innerHTML="Translate to "+lang
 			}
 		</script>
@@ -122,7 +122,7 @@
 								style="box-shadow:1px 1px 1px 2px gray;height:35px;vertical-align:middle;display: inline-block;">
 							<span class="glyphicon glyphicon-erase" aria-hidden="true"></span>
 			</button>
-			<input type="hidden" id="system" value="translate the sentence into Chinese">
+			<input type="hidden" id="system" value="translate the sentence that the user sent into Chinese">
 			<textarea
 				   placeholder="Enter the question"
 				   cols="63" rows="3"
