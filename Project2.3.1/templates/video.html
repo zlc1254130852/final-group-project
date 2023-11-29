@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>video chat</title>
+    <link rel="stylesheet" href="../static/plugins/bootstrap_v3/css/bootstrap.min.css">
+		<script src="../static/plugins/bootstrap_v3/js/jquery-3.7.1.min.js"></script>
+		<script src="../static/plugins/bootstrap_v3/js/bootstrap.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.3/socket.io.min.js"></script>
+        <script src="../static/dist/index.umd.js"></script>
+        <script>
+        	var iatWS = io.connect('http://127.0.0.1:5000');
+        	const recorder = new RecorderManager("../static/dist");
+        	var s2t_content=""
+        	var user=""
+
+			iatWS.on('reply3', function(res) {
+				if (res.user!=user)
+        			return;
+				s2t_content+=res.result.slice(1).trim()
+				s2tFrame.value=s2t_content
+				send()
+
+				setTimeout(function(){
+					s2tFrame.scrollTop = s2tFrame.scrollHeight;
+				},0);
+			});
+
+        	window.onload = function () {
+        		s2tFrame=document.getElementById('myquestion')
+        		if(document.getElementById("current_user"))
+            		user=document.getElementById("current_user").innerHTML
+
+<!--				document.getElementById('stopButton').disabled=true-->
+
+<!--				document.getElementById('myquestion').style.marginBottom="-22px"-->
+<!--				document.getElementById('sendButton').style.marginBottom="20px"-->
+<!--				document.getElementById('stopButton').style.marginBottom="20px"-->
+<!--				document.getElementById('clearButton').style.marginBottom="20px"-->
+			}
+            function send(){
+            	if(document.getElementById('tag').innerHTML=="Register"){
+					alert("Please log in to proceed");
+					return;
+				}
+            	tmp_question=document.getElementById('myquestion').value
+            	document.getElementById('myquestion').value=""
+
+            	if (tmp_question.trim()==""){
+            		alert("Cannot send empty message!")
+            		return;
+            	}
+
+                $.ajax({
+					url: "/video",
+					type: "POST",
+					data: {
+						current_user:user,
+						question: tmp_question.trim()
+					},
+					dataType: "json",
+					success: function(response) {
+						console.log(response)
+						document.getElementById('player').src=response.result
+
+					}
+				});
+            }
+			recorder.onFrameRecorded = ({ isLastFrame, frameBuffer }) => {
+
+			  iatWS.emit('update3',{current_user: user, data: new Int8Array(frameBuffer)})
+			  if (isLastFrame) {
+
+
+			  }
+
+			};
+			function play(){
+				if(document.getElementById('tag').innerHTML=="Register"){
+					alert("Please log in to proceed");
+					return;
+				}
+				document.getElementById('playButton').disabled=true
+				document.getElementById('playButtonArea').hidden=true
+
+				document.getElementById('stopPlayArea').hidden=false
+				document.getElementById('stopPlay').disabled=false
+
+				iatWS.emit('play3',{current_user: user})
+
+				recorder.start({
+					sampleRate: 16000,
+					frameSize: 1280,
+				});
+
+			}
+			function stop_recording(){
+
+				recorder.stop();
+				document.getElementById('stopPlay').disabled=true
+				document.getElementById('stopPlayArea').hidden=true
+
+				document.getElementById('playButtonArea').hidden=false
+				document.getElementById('playButton').disabled=false
+
+				iatWS.emit('update3',{current_user: user, stop:"stop"})
+			}
+        </script>
+</head>
+<body>
+<nav style="box-shadow:1px 1px 1px 2px gray;" class="navbar navbar-inverse">
+	  <div class="container-fluid">
+		<!-- Brand and toggle get grouped for better mobile display -->
+		<div class="navbar-header">
+		  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+			<span class="sr-only">Toggle navigation</span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+		  </button>
+		  <a class="navbar-brand" href="#">Assistant</a>
+		</div>
+
+		<!-- Collect the nav links, forms, and other content for toggling -->
+		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+		  <ul class="nav navbar-nav">
+			<li><a href="/chat">AI chat</a></li>
+			<li><a href="/translator">translator</a></li>
+			  <li><a href="/voice">real-time translation</a></li>
+			  <li><a href="/chat2">writing grader</a></li>
+			  <li><a href="/assess">oral assessment</a></li>
+			  <li class="active"><a href="/video_chat">video chat<span class="sr-only">(current)</span></a></li>
+			  <li><a href="/upload">speaking grader</a></li>
+			  <li><a href="/text_summary">text summary</a></li>
+			  <li><a href="/upload2">object detection</a></li>
+
+		  </ul>
+
+		  <ul class="nav navbar-nav navbar-right">
+			{% if current_user %}
+				  	<li><a id="current_user" href="javascript:void(0);">{{current_user}}</a></li>
+                	<li><a id="tag" href="/logout">Logout</a></li>
+                {% else %}
+					<li><a id="current_user" href="/login">Login</a></li>
+				  	<li><a id="tag" href="/reg">Register</a></li>
+				  {% endif %}
+
+		  </ul>
+		</div><!-- /.navbar-collapse -->
+	  </div><!-- /.container-fluid -->
+	</nav>
+<center>
+	<br>
+
+    <video id="player" class="video" style="width: 480px;height: 480px;position:absolute;z-index:1"
+						src="" autoplay>
+				</video>
+	<img id="image" class="img" style="width: 480px;height: 480px;position:relative;"
+						src="./static/xiaomeng.png">
+    <br><br>
+
+    <textarea
+			   placeholder="Enter the question"
+			   cols="63" rows="3"
+			   id="myquestion"
+			   style="box-shadow:1px 1px 1px 2px gray;margin-left:40px;vertical-align:top;border-radius: 10px;resize:none"
+			   onkeydown="if(!event.shiftKey && event.keyCode === 13 ) send()"
+		></textarea>
+	<div style="vertical-align:top;display: inline-block;">
+			<div>
+				<div id="playButtonArea">
+					<button id="playButton" style="box-shadow:1px 1px 1px 2px gray;" type="button" onclick="play()" class="btn btn-default">
+						<span class="glyphicon glyphicon-play" aria-hidden="true"></span>
+					</button>
+				</div>
+				<div id="stopPlayArea" hidden="hidden">
+					<button id="stopPlay" style="box-shadow:1px 1px 1px 2px gray;" disabled="true" type="button" onclick="stop_recording()" class="btn btn-default">
+						<span class="glyphicon glyphicon-pause" aria-hidden="true"></span>
+					</button>
+				</div>
+			</div>
+			<div>
+				<div id="sendButtonArea">
+					<button id="sendButton" style="box-shadow:1px 1px 1px 2px gray;" type="button" onclick="send()" class="btn btn-default">
+									<span class="glyphicon glyphicon-send" aria-hidden="true"></span>
+					</button>
+				</div>
+			</div>
+		</div>
+</center>
+</body>
+</html>
