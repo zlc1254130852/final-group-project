@@ -35,26 +35,39 @@ var user=""
 
                         const reader = response.body.getReader();
                         const decoder = new TextDecoder('utf-8');
+                        let buffer = '';
 
-                        return reader.read().then(function process({ done, value }) {
-                          if (done) {
-                            console.log('Stream finished');
-                            return;
-                          }
-                          console.log(decoder.decode(value))
-                          var obj=JSON.parse(decoder.decode(value))
+                        function processStreamResult(result2) {
+                            const chunk = decoder.decode(result2.value, { stream: !result2.done });
+                            buffer += chunk;
 
-                          log.push({"role": obj.msg_sender, "content": obj.msg_content});
+                            const lines = buffer.split('\n');
+                            buffer = lines.pop();
 
-                          addElementDiv(obj.msg_content,parseInt(obj.msg_id),obj.msg_sender);
-                          counter=parseInt(obj.msg_id)
+                            lines.forEach(line => {
+                                if (line.trim().length > 0) {
 
-                          console.log("--------------------------------------------")
+                                  var obj=JSON.parse(line)
 
-                          return reader.read().then(process);
-                        });
+                                  log.push({"role": obj.msg_sender, "content": obj.msg_content});
 
-                      }).catch(console.error);
+                                  addElementDiv(obj.msg_content,parseInt(obj.msg_id),obj.msg_sender);
+                                  counter=parseInt(obj.msg_id)
+
+                                  console.log("--------------------------------------------")
+                                }
+                            });
+
+                            if (!result2.done) {
+                                return reader.read().then(processStreamResult);
+                            }
+                        }
+
+                        return reader.read().then(processStreamResult);
+                    })
+						.catch(error => {
+							console.error('Error:', error);
+						});
 
 			}
 
