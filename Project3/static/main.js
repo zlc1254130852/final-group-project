@@ -55,6 +55,7 @@ var user=""
                                   counter=parseInt(obj.msg_id)
 
                                   console.log("--------------------------------------------")
+				  chatFrame.scrollTop = chatFrame.scrollHeight;
                                 }
                             });
 
