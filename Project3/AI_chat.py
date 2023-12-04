@@ -108,7 +108,6 @@ def load_msg():
         for i in history:
             msg_obj=eval(i.content)
             print(msg_obj)
-            time.sleep(0.001)
             yield json.dumps({"msg_id":i.message_id,"msg_sender":msg_obj["role"],"msg_content":msg_obj["content"]})+"\n"
 
     headers = {
