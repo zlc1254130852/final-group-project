@@ -27,6 +27,8 @@
         var s2t_content=""
 
         iatWS.on('reply3', function(res) {
+        	if (res.user!=user)
+        		return;
             s2t_content+=res.result.slice(1).trim()
             s2tFrame.value=s2t_content
 
@@ -50,6 +52,7 @@
 				alert("Please log in to proceed");
 				return;
 			}
+			s2t_content=""
             document.getElementById('playButton').disabled=true
             document.getElementById('playButtonArea').hidden=true
 
