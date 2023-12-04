@@ -11,6 +11,7 @@ def generate_AI_chat(current_user,app_type,message_id,ctrler,opt,response):
         if ctrler[opt]==0:
             if trunk.choices[0].delta.content:
                 tmp_message+=trunk.choices[0].delta.content
+            time.sleep(0.1)
             yield json.dumps({'delta':trunk.choices[0].delta.content,'finish_reason':trunk.choices[0].finish_reason}) + "\n"
         else:
             model_message = Message()
