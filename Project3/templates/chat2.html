@@ -69,37 +69,51 @@
 					const reader = response.body.getReader();
 					const decoder = new TextDecoder('utf-8');
 
-<!--					content+="\nassistant: \n"-->
-<!--					document.getElementById('parent').value=content-->
 					addElementDiv("",counter,"assistant");
 					var show=document.getElementById('div'+counter.toString())
 					counter+=1
 
-                    return reader.read().then(function process({ done, value }) {
-                      if (done) {
-                        console.log('Stream finished');
-                        return;
-                      }
-                      console.log(decoder.decode(value).slice(6))
-					  var obj=JSON.parse(decoder.decode(value).slice(6))
-					  if (obj.event!="message_end"){
-					  	content+=obj.answer
-<!--                      	document.getElementById('parent').value=content-->
-						show.innerHTML = content;
-					    chatFrame.scrollTop = chatFrame.scrollHeight;
-					  }
-					  else{
-					  	content+="\n"
-<!--                      	document.getElementById('parent').value=content-->
-                      	show.innerHTML = content;
-					    chatFrame.scrollTop = chatFrame.scrollHeight;
-					  }
-                      console.log("--------------------------------------------")
+                    let buffer = '';
 
-                      return reader.read().then(process);
-                    });
+                        function processStreamResult(result2) {
+                            const chunk = decoder.decode(result2.value, { stream: !result2.done });
+                            buffer += chunk;
 
-                  }).catch(console.error);
+                            const lines = buffer.split('\n');
+                            buffer = lines.pop();
+
+                            lines.forEach(line => {
+                                if (line.trim().length > 0) {
+
+                                  var obj=JSON.parse(line.slice(6))
+
+								  if (obj.event!="message_end"){
+									content+=obj.answer
+			<!--                      	document.getElementById('parent').value=content-->
+									show.innerHTML = content;
+									chatFrame.scrollTop = chatFrame.scrollHeight;
+								  }
+								  else{
+									content+="\n"
+			<!--                      	document.getElementById('parent').value=content-->
+									show.innerHTML = content;
+									chatFrame.scrollTop = chatFrame.scrollHeight;
+								  }
+								  console.log("--------------------------------------------")
+
+                                }
+                            });
+
+                            if (!result2.done) {
+                                return reader.read().then(processStreamResult);
+                            }
+                        }
+
+                        return reader.read().then(processStreamResult);
+                    })
+						.catch(error => {
+							console.error('Error:', error);
+						});
 			}
 			function addElementDiv(message,counter,speaker){
 				var parent = document.getElementById("parent")
