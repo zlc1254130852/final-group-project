@@ -170,13 +170,13 @@ def summarize():
                 {'delta': trunk.choices[0].delta.content, 'finish_reason': trunk.choices[0].finish_reason}))
             time.sleep(0.1)
             yield json.dumps(
-                {'delta': trunk.choices[0].delta.content, 'finish_reason': trunk.choices[0].finish_reason})
+                {'delta': trunk.choices[0].delta.content, 'finish_reason': trunk.choices[0].finish_reason})+"\n"
         for trunk in response2:
             print(json.dumps(
                 {'delta': trunk.choices[0].delta.content, 'finish_reason': trunk.choices[0].finish_reason}))
             time.sleep(0.1)
             yield json.dumps(
-                {'delta': trunk.choices[0].delta.content, 'finish_reason': trunk.choices[0].finish_reason})
+                {'delta': trunk.choices[0].delta.content, 'finish_reason': trunk.choices[0].finish_reason})+"\n"
 
     headers = {
         'Content-Type': 'text/event-stream',
