@@ -54,13 +54,13 @@ def generate_dify_writing(response):
             tmp = trunk.decode('utf-8').split("\n\n")[-1]
             time.sleep(0.1)
             if len(tmp2) >= 6 and tmp2[0:6] == "data: ":
-                yield tmp2
+                yield tmp2+"\n"
         elif len(trunk.decode('utf-8')) >= 2 and trunk.decode('utf-8')[-2:] == "}\n":
             tmp3 = tmp[:].strip()
             tmp = ""
             time.sleep(0.1)
             if len(tmp2) >= 6 and tmp2[0:6] == "data: ":
-                yield tmp3
+                yield tmp3+"\n"
 
 def generate_dify_speaking(response,user):
     tmp = ""
