@@ -2,15 +2,12 @@
 from flask import Blueprint
 from flask import render_template
 from flask import request
-import requests
-import time
-import hashlib
 import base64
 import json
 from api_key import OBJECT_DETECTION_APPID, OBJECT_DETECTION_API_KEY
-from excel_query import excel_find
 from baidu_translation import baidu_translate
 from login_check import check_login
+from object_detection_2 import obj_detection
 
 URL = "http://tupapi.xfyun.cn/v1/currency"
 
@@ -38,48 +35,20 @@ def save_file2():
     to_lang = form.get('to_lang')
     current_user=form.get('user')
 
-    buffer_data = file.read()
-    with open("static/"+"picture"+current_user, 'wb+') as f:
-        f.write(buffer_data)
+    base64_data = base64.b64encode(file.read()).decode()
 
-    result = object_detect("static/"+"picture"+current_user,"picture"+current_user)
+    result=obj_detection(base64_data)
 
-    result2 = ""
+    result2=[]
 
-    for i in json.loads(result.decode('utf-8'))["data"]["fileList"][0]["labels"]:
-        tmp = excel_find(i)
-        tmp2 = baidu_translate(tmp, to_lang)
-        result2 += tmp + " " + tmp2
+    counter=0
+    for i in json.loads(result)["Labels"]:
+        if counter==0:
+            result2.append(baidu_translate(i["Name"], target_lang='en',from_lang="zh"))
+            counter += 1
+        else:
+            result2.append("\n" + baidu_translate(i["Name"], target_lang='en', from_lang="zh"))
 
-        result2 +="\n"
+        result2.append(baidu_translate(i["Name"], target_lang=to_lang, from_lang="zh"))
 
-    return {"result":result2}
-
-
-def getHeader(image_name):
-    curTime = str(int(time.time()))
-    param = "{\"image_name\":\"" + image_name + "\"}"
-    paramBase64 = base64.b64encode(param.encode('utf-8'))
-    tmp = str(paramBase64, 'utf-8')
-
-    m2 = hashlib.md5()
-    m2.update((API_KEY + curTime + tmp).encode('utf-8'))
-    checkSum = m2.hexdigest()
-
-    header = {
-        'X-CurTime': curTime,
-        'X-Param': paramBase64,
-        'X-Appid': APPID,
-        'X-CheckSum': checkSum,
-    }
-    return header
-
-def getBody(filePath):
-    binfile = open(filePath, 'rb')
-    data = binfile.read()
-    return data
-
-def object_detect(FilePath, ImageName):
-    r = requests.post(URL,data=getBody(FilePath), headers=getHeader(ImageName))
-    print(r.content)
-    return r.content
+    return {"result": result2}
