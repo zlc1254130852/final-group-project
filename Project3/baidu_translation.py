@@ -20,7 +20,7 @@ url = endpoint + path
 def make_md5(s, encoding='utf-8'):
     return md5(s.encode(encoding)).hexdigest()
 
-def baidu_translate(source_text, target_lang=to_lang):
+def baidu_translate(source_text, target_lang=to_lang, from_lang=from_lang):
     salt = random.randint(32768, 65536)
     # Build request
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
