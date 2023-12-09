@@ -4,15 +4,9 @@ from flask import render_template
 from flask import request
 import base64
 import json
-from api_key import OBJECT_DETECTION_APPID, OBJECT_DETECTION_API_KEY
 from baidu_translation import baidu_translate
 from login_check import check_login
 from object_detection_2 import obj_detection
-
-URL = "http://tupapi.xfyun.cn/v1/currency"
-
-APPID = OBJECT_DETECTION_APPID
-API_KEY = OBJECT_DETECTION_API_KEY
 
 object_detection_bp = Blueprint('object_detection', __name__)
 
