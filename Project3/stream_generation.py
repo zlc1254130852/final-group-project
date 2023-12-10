@@ -38,9 +38,10 @@ def generate_bwav(bwav):
             tmp=[]
             for j in range(1024-len(bwav)%1024):
                 tmp.append(0)
-
+            time.sleep(0.02)
             yield bwav[i*1024:len(bwav)]+bytes(tmp)
         else:
+            time.sleep(0.02)
             yield bwav[i*1024:(i+1)*1024]
 
 def generate_dify_writing(response):
